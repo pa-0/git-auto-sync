@@ -63,7 +63,7 @@ func NewRepoConfig(repoPath string) (RepoConfig, error) {
 	return RepoConfig{
 		RepoPath:     repoPath,
 		PollInterval: pollInterval,
-		FSLag:        1 * time.Second,
+		FSLag:        4 * time.Hour,
 		GitExec:      gitExec,
 	}, nil
 }
@@ -102,6 +102,8 @@ func WatchForChanges(cfg RepoConfig) error {
 					<-timer1.C
 					done <- true
 				}()
+
+				<-done
 
 				err := AutoSync(cfg)
 				if err != nil {
