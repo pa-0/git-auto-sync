@@ -64,7 +64,7 @@ func NewRepoConfig(repoPath string) (RepoConfig, error) {
 	return RepoConfig{
 		RepoPath:     repoPath,
 		PollInterval: pollInterval,
-		FSLag:        1 * time.Second,
+		FSLag:        20 * time.Minute,
 		GitExec:      gitExec,
 	}, nil
 }
