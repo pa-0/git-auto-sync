@@ -2,6 +2,8 @@ package common
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/gen2brain/beeep"
 	"github.com/ztrue/tracerr"
@@ -9,19 +11,23 @@ import (
 
 // FIXME: Add logs for when we commit, pull, and push
 func AutoSync(repoConfig RepoConfig) error {
+	fmt.Println("AutoSync", repoConfig.RepoPath, "current time", time.Now().Format(time.RFC3339))
 	var err error
 	err = ensureGitAuthor(repoConfig)
 	if err != nil {
+		fmt.Println("git author err", err)
 		return tracerr.Wrap(err)
 	}
 
 	err = commit(repoConfig)
 	if err != nil {
+		fmt.Println("commit err", err)
 		return tracerr.Wrap(err)
 	}
 
 	err = fetch(repoConfig)
 	if err != nil {
+		fmt.Println("fetch err", err)
 		return tracerr.Wrap(err)
 	}
 
@@ -42,6 +48,7 @@ func AutoSync(repoConfig RepoConfig) error {
 
 	err = push(repoConfig)
 	if err != nil {
+		fmt.Println("push err", err)
 		return tracerr.Wrap(err)
 	}
 

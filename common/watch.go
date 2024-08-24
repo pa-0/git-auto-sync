@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,7 +40,7 @@ func NewRepoConfig(repoPath string) (RepoConfig, error) {
 
 	autoSyncSection := config.Raw.Section("auto-sync")
 
-	pollInterval := 10 * time.Minute
+	pollInterval := 5 * time.Minute
 	if autoSyncSection.Option("syncInterval") != "" {
 		secondsStr := autoSyncSection.Option("syncInterval")
 		seconds, err := strconv.Atoi(secondsStr)
@@ -63,7 +64,7 @@ func NewRepoConfig(repoPath string) (RepoConfig, error) {
 	return RepoConfig{
 		RepoPath:     repoPath,
 		PollInterval: pollInterval,
-		FSLag:        4 * time.Hour,
+		FSLag:        1 * time.Second,
 		GitExec:      gitExec,
 	}, nil
 }
@@ -93,9 +94,11 @@ func WatchForChanges(cfg RepoConfig) error {
 		}
 
 		for {
+			fmt.Println("in the loop")
 			select {
 			case <-notifyFilteredChannel:
 				// Wait 1 second
+				fmt.Println("notifyFilteredChannel1")
 				timer1 := time.NewTimer(cfg.FSLag)
 				done := make(chan bool)
 				go func() {
@@ -104,18 +107,22 @@ func WatchForChanges(cfg RepoConfig) error {
 				}()
 
 				<-done
+				fmt.Println("notifyFilteredChannel2")
 
 				err := AutoSync(cfg)
 				if err != nil {
 					log.Fatalln(err)
 				}
+				fmt.Println("notifyFilteredChannel3")
 				continue
 
 			case <-pollTicker.C:
+				fmt.Println("pollTicker1")
 				err := AutoSync(cfg)
 				if err != nil {
 					log.Fatalln(err)
 				}
+				fmt.Println("pollTicker2")
 			}
 		}
 	}()
